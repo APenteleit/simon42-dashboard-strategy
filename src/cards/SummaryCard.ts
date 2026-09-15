@@ -34,6 +34,7 @@ const SECURITY_COVER_CLASSES = new Set(['door', 'garage', 'gate', 'window']);
 const SECURITY_BINARY_SENSOR_CLASSES = new Set(['door', 'window', 'garage_door', 'opening', 'smoke', 'gas', 'heat', 'moisture']);
 
 const COLOR_MAP: Record<string, string> = {
+  green: 'var(--green-color, #4caf50)',
   orange: 'var(--orange-color, #ff9800)',
   purple: 'var(--purple-color, #9c27b0)',
   yellow: 'var(--yellow-color, #ffc107)',
@@ -294,15 +295,62 @@ class Simon42SummaryCard extends LitElement {
     }
   }
 
+  private _getBatteryStatus(): { critical: number; low: number } {
+    if (!this.hass) return { critical: 0, low: 0 };
+
+    this._getRelevantEntities();
+
+    if (!this._relevantEntityIds || this._relevantEntityIds.size === 0) {
+      return { critical: 0, low: 0 };
+    }
+
+    const critThreshold = this._config.battery_critical_threshold ?? 20;
+    const lowThreshold = 50;
+
+    let critical = 0;
+    let low = 0;
+
+    for (const id of this._relevantEntityIds) {
+      const state = this.hass.states[id];
+      if (!state) continue;
+
+      // Binary low-battery sensors count as critical when "on"
+      if (id.startsWith('binary_sensor.')) {
+        if (state.state === 'on') critical++;
+        continue;
+      }
+
+      const unit = state.attributes?.unit_of_measurement;
+      if (unit && unit !== '%') continue;
+
+      const isUnavailable = state.state === 'unavailable' || state.state === 'unknown';
+      if (isUnavailable) {
+        if (!this._config.hide_unavailable_entities) critical++;
+        continue;
+      }
+
+      const value = parseFloat(state.state);
+      if (isNaN(value)) continue;
+
+      if (value < critThreshold) {
+        critical++;
+      } else if (value <= lowThreshold) {
+        low++;
+      }
+    }
+
+    return { critical, low };
+  }
+
   private _getDisplayConfig(): DisplayConfig {
     const count = this._count;
     const hasItems = count > 0;
 
     const configs: Record<SummaryType, DisplayConfig> = {
       lights: {
-        icon: 'mdi:lamps',
+        icon: 'mdi:lightbulb-group',
         name: hasItems ? `${count} ${count === 1 ? localize('summary.lights_on_one') : localize('summary.lights_on_many')}` : localize('summary.lights_off'),
-        color: hasItems ? 'orange' : 'grey',
+        color: hasItems ? 'orange' : 'green',
         path: 'lights',
       },
       covers: {
@@ -317,16 +365,53 @@ class Simon42SummaryCard extends LitElement {
         color: hasItems ? 'yellow' : 'grey',
         path: 'security',
       },
-      batteries: {
-        icon: hasItems ? 'mdi:battery-alert' : 'mdi:battery-charging',
-        name: hasItems ? `${count} ${count === 1 ? localize('summary.batteries_critical_one') : localize('summary.batteries_critical_many')}` : localize('summary.batteries_ok'),
-        color: hasItems ? 'red' : 'grey',
-        path: 'batteries',
-      },
+      batteries: (() => {
+        const batteryStatus = this._getBatteryStatus();
+
+        if (batteryStatus.critical > 0) {
+          const criticalText =
+            batteryStatus.critical === 1
+              ? '1 Batterie kritisch'
+              : `${batteryStatus.critical} Batterien kritisch`;
+
+          const lowText =
+            batteryStatus.low === 0
+              ? ''
+              : batteryStatus.low === 1
+                ? ' · 1 niedrig'
+                : ` · ${batteryStatus.low} niedrig`;
+
+          return {
+            icon: 'mdi:battery-alert',
+            name: `${criticalText}${lowText}`,
+            color: 'red',
+            path: 'batteries',
+          };
+        }
+
+        if (batteryStatus.low > 0) {
+          return {
+            icon: 'mdi:battery-50',
+            name:
+              batteryStatus.low === 1
+                ? '1 Batterie niedrig'
+                : `${batteryStatus.low} Batterien niedrig`,
+            color: 'yellow',
+            path: 'batteries',
+          };
+        }
+
+        return {
+          icon: 'mdi:battery',
+          name: localize('summary.batteries_ok'),
+          color: 'green',
+          path: 'batteries',
+        };
+      })(),
       climate: {
         icon: 'mdi:thermostat',
         name: hasItems ? `${count} ${count === 1 ? localize('summary.climate_active_one') : localize('summary.climate_active_many')}` : localize('summary.climate_off'),
-        color: hasItems ? 'orange' : 'grey',
+        color: hasItems ? 'orange' : 'green',
         path: 'climate',
       },
       maintenance: {
