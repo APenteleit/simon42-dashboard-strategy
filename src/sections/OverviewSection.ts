@@ -120,25 +120,30 @@ export function createOverviewSection(data: OverviewSectionParams): LovelaceSect
   cards.push(...createHouseModeCards(config));
 
   // Add search card if enabled. Two variants: the HACS-installed
-  // custom:search-card (default, inline input) or a native markdown hint
-  // pointing at HA's built-in global search (no external dependency).
-  if (showSearchCard) {
-    const variant = config.search_card_variant === 'tip' ? 'tip' : 'custom';
-    if (variant === 'tip') {
-      cards.push({
-        type: 'markdown',
-        content:
-          '### 🔍 ' + localize('editor.search_card_tip_title') + '\n\n' +
-          localize('editor.search_card_tip_body'),
-        grid_options: { columns: 'full' },
-      });
-    } else {
-      cards.push({
-        type: 'custom:search-card',
-        grid_options: { columns: 'full' },
-      });
-    }
+// custom:search-card (default, inline input) or a native markdown hint
+// pointing at HA's built-in global search (no external dependency).
+if (showSearchCard) {
+  const variant = config.search_card_variant === 'tip' ? 'tip' : 'custom';
+
+  if (variant === 'tip') {
+    cards.push({
+      type: 'markdown',
+      content:
+        '### 🔍 ' + localize('editor.search_card_tip_title') + '\n\n' +
+        localize('editor.search_card_tip_body'),
+      grid_options: {
+        columns: 8,
+      },
+    });
+  } else {
+    cards.push({
+      type: 'custom:search-card',
+      grid_options: {
+        columns: 8,
+      },
+    });
   }
+}
 
   // Summaries columns (default: 2)
   const summariesColumns = config.summaries_columns || 2;
