@@ -92,16 +92,17 @@ export function createOverviewSection(data: OverviewSectionParams): LovelaceSect
         vertical: false,
       });
     } else {
-      // Clock only, full width
-      cards.push({
-        type: 'clock',
-        clock_size: 'small',
-        show_seconds: false,
-        grid_options: {
-          columns: 'full',
-        },
-      });
-    }
+  // Clock compact
+  cards.push({
+    type: 'clock',
+    clock_size: 'medium',
+    clock_style: 'digital',
+    show_seconds: false,
+    grid_options: {
+      columns: 4,
+    },
+  });
+}
   } else if (alarmEntity) {
     // No clock, but alarm panel full width
     cards.push({
