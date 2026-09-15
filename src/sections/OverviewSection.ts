@@ -95,11 +95,11 @@ export function createOverviewSection(data: OverviewSectionParams): LovelaceSect
   // Clock compact
   cards.push({
     type: 'clock',
-    clock_size: 'medium',
+    clock_size: 'small',
     clock_style: 'digital',
     show_seconds: false,
     grid_options: {
-      columns: 4,
+      columns: 3,
     },
   });
 }
@@ -135,14 +135,36 @@ if (showSearchCard) {
         columns: 8,
       },
     });
-  } else {
-    cards.push({
-      type: 'custom:search-card',
-      grid_options: {
-        columns: 8,
-      },
-    });
-  }
+} else {
+  cards.push({
+    type: 'custom:search-card',
+    search_text: 'Suchen...',
+    grid_options: {
+      columns: 9,
+    },
+    card_mod: {
+      style: `
+        ha-card {
+          position: relative;
+        }
+
+        ha-card::before {
+          content: '🔍';
+          position: absolute;
+          left: 18px;
+          top: 50%;
+          transform: translateY(-50%);
+          font-size: 17px;
+          z-index: 2;
+          pointer-events: none;
+        }
+
+        ha-card input {
+          padding-left: 36px !important;
+        }
+      `,
+    },
+  });
 }
 
   // Summaries columns (default: 2)
