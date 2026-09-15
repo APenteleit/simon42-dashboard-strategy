@@ -140,26 +140,20 @@ if (showSearchCard) {
         '### 🔍 ' + localize('editor.search_card_tip_title') + '\n\n' +
         localize('editor.search_card_tip_body'),
       grid_options: {
-        columns: 8,
+        columns: 6,
+        rows: 2,
       },
     });
   } else {
-  cards.push({
-    type: 'custom:search-card',
-    search_text: 'Suchen...',
-    grid_options: {
-      columns: 6,
-    },
-    card_mod: {
-      style: `
-        ha-card {
-          height: 72px !important;
-          min-height: 72px !important;
-          box-sizing: border-box;
-        }
-      `,
-    },
-  });
+    cards.push({
+      type: 'custom:search-card',
+      search_text: 'Suchen...',
+      grid_options: {
+        columns: 6,
+        rows: 2,
+      },
+    });
+  }
 }
   
   // Summaries columns (default: 2)
