@@ -1,0 +1,33 @@
+name: Build Andreas Dashboard Strategy
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Repository laden
+        uses: actions/checkout@v4
+
+      - name: Node.js installieren
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Abhängigkeiten installieren
+        run: npm ci
+
+      - name: Strategy bauen
+        run: npm run build
+
+      - name: Build hochladen
+        uses: actions/upload-artifact@v4
+        with:
+          name: andreas42-dashboard-strategy
+          path: dist/
