@@ -119,7 +119,7 @@ export function createOverviewSection(data: OverviewSectionParams): LovelaceSect
   // clock/alarm row, also when neither clock nor alarm is shown.
   cards.push(...createHouseModeCards(config));
 
-  // Add search card if enabled. Two variants: the HACS-installed
+// Add search card if enabled. Two variants: the HACS-installed
 // custom:search-card (default, inline input) or a native markdown hint
 // pointing at HA's built-in global search (no external dependency).
 if (showSearchCard) {
@@ -135,38 +135,16 @@ if (showSearchCard) {
         columns: 8,
       },
     });
-} else {
-  cards.push({
-    type: 'custom:search-card',
-    search_text: 'Suchen...',
-    grid_options: {
-      columns: 9,
-    },
-    card_mod: {
-      style: `
-        ha-card {
-          position: relative;
-        }
-
-        ha-card::before {
-          content: '🔍';
-          position: absolute;
-          left: 18px;
-          top: 50%;
-          transform: translateY(-50%);
-          font-size: 17px;
-          z-index: 2;
-          pointer-events: none;
-        }
-
-        ha-card input {
-          padding-left: 36px !important;
-        }
-      `,
-    },
-  });
+  } else {
+    cards.push({
+      type: 'custom:search-card',
+      grid_options: {
+        columns: 8,
+      },
+    });
+  }
 }
-
+  
   // Summaries columns (default: 2)
   const summariesColumns = config.summaries_columns || 2;
   const showCoversSummary = config.show_covers_summary !== false;
