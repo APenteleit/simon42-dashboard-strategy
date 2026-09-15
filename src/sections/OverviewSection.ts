@@ -99,7 +99,15 @@ export function createOverviewSection(data: OverviewSectionParams): LovelaceSect
     clock_style: 'digital',
     show_seconds: false,
     grid_options: {
-      columns: 3,
+      columns: 6,
+    },
+    card_mod: {
+      style: `
+        ha-card {
+          height: 72px !important;
+          min-height: 72px !important;
+        }
+      `,
     },
   });
 }
@@ -136,13 +144,22 @@ if (showSearchCard) {
       },
     });
   } else {
-    cards.push({
-      type: 'custom:search-card',
-      grid_options: {
-        columns: 8,
-      },
-    });
-  }
+  cards.push({
+    type: 'custom:search-card',
+    search_text: 'Suchen...',
+    grid_options: {
+      columns: 6,
+    },
+    card_mod: {
+      style: `
+        ha-card {
+          height: 72px !important;
+          min-height: 72px !important;
+          box-sizing: border-box;
+        }
+      `,
+    },
+  });
 }
   
   // Summaries columns (default: 2)
